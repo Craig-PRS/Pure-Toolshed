@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pure Toolshed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* =====================================================================
+     BRANDING  —  two things to set, both right here:
+
+     1. --brand below: change it to Pure's exact brand hex (from your brand
+        guidelines). Every accent on the page follows this one value.
+     2. Logo: drop a file called  logo.png  into the repo next to this file.
+        It appears top-left automatically. Until then, a "Pure" wordmark
+        stands in, so the page still looks branded.
+     ===================================================================== */
+  :root {
+    --brand:      #0E8C84;   /* <-- SET THIS to Pure's brand hex */
+    --brand-ink:  #0A6A64;   /* a darker shade for hover (optional) */
+    --brand-soft: #E2F1EF;   /* a light tint for focus rings (optional) */
+
+    --board: #E9EBEF;
+    --board-dot: #D2D6DD;
+    --card: #FFFFFF;
+    --ink: #16181D;
+    --muted: #65696F;
+    --hair: #DADEE4;
+    --note-bg: #FFF4E8;
+    --note-border: #F2D7B0;
+    --note-ink: #9A5B16;
+    --shadow: 0 1px 2px rgba(22,24,29,.06), 0 6px 16px rgba(22,24,29,.07);
+    --shadow-lift: 0 2px 4px rgba(22,24,29,.08), 0 14px 32px rgba(22,24,29,.12);
+    --display: "Space Grotesk", system-ui, sans-serif;
+    --body: "Inter", system-ui, sans-serif;
+    --mono: "Space Mono", ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: var(--body);
+    color: var(--ink);
+    background-color: var(--board);
+    background-image: radial-gradient(var(--board-dot) 1.5px, transparent 1.5px);
+    background-size: 22px 22px;
+    background-position: -11px -11px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+
+  /* ---------- Header ---------- */
+  header.masthead {
+    padding: 40px 0 36px;
+    border-bottom: 1px solid var(--hair);
+  }
+  .brandmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    margin-bottom: 38px;
+  }
+  .brandmark img { height: 40px; width: auto; display: block; }
+  .wordmark {
+    display: none;            /* shown only if logo.png is missing */
+    align-items: baseline;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 30px;
+    letter-spacing: -.02em;
+    color: var(--ink);
+  }
+  .wordmark em {
+    font-style: normal;
+    color: var(--brand);
+    margin-left: 1px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--brand);
+    margin: 0 0 16px;
+  }
+  h1 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(40px, 7vw, 76px);
+    line-height: .98;
+    letter-spacing: -.02em;
+    margin: 0 0 18px;
+  }
+  .lede { font-size: 17px; color: var(--muted); max-width: 56ch; margin: 0; }
+
+  /* ---------- Controls ---------- */
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
+    padding: 28px 0 8px;
+    position: sticky; top: 0; z-index: 20;
+    background-color: var(--board);
+    background-image: radial-gradient(var(--board-dot) 1.5px, transparent 1.5px);
+    background-size: 22px 22px;
+  }
+  .search { position: relative; flex: 1 1 280px; min-width: 240px; }
+  .search input {
+    width: 100%; font-family: var(--body); font-size: 15px; color: var(--ink);
+    padding: 13px 16px 13px 44px;
+    border: 1px solid var(--hair); border-radius: 12px; background: var(--card);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .search input::placeholder { color: var(--muted); }
+  .search input:focus {
+    outline: none; border-color: var(--brand);
+    box-shadow: 0 0 0 3px var(--brand-soft);
+  }
+  .search svg {
+    position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+    color: var(--muted);
+  }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .04em;
+    text-transform: uppercase; padding: 9px 14px;
+    border: 1px solid var(--hair); border-radius: 999px;
+    background: var(--card); color: var(--muted); cursor: pointer;
+    transition: all .15s;
+  }
+  .chip:hover { border-color: var(--ink); color: var(--ink); }
+  .chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .chip:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+  .count {
+    font-family: var(--mono); font-size: 12px; color: var(--muted);
+    padding: 4px 0 20px; text-transform: uppercase; letter-spacing: .06em;
+  }
+
+  /* ---------- Grid ---------- */
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 20px; padding-bottom: 64px;
+  }
+  .card {
+    position: relative; background: var(--card);
+    border: 1px solid var(--hair); border-radius: 14px;
+    padding: 22px 22px 20px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); border-color: #C3C7CF; }
+  .card::before {
+    content: ""; position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--board); box-shadow: inset 0 0 0 1px var(--hair);
+  }
+  .card-tag {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--brand);
+    margin: 14px 0 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .card-tag .priv { color: var(--muted); display: inline-flex; align-items: center; gap: 4px; }
+  .card h2 {
+    font-family: var(--display); font-weight: 600; font-size: 21px;
+    letter-spacing: -.01em; margin: 0 0 8px;
+  }
+  .card p { font-size: 14.5px; color: var(--muted); margin: 0 0 20px; flex: 1; }
+  .card-foot {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding-top: 16px; border-top: 1px solid var(--hair);
+  }
+  .builder {
+    font-family: var(--mono); font-size: 11.5px; color: var(--muted); letter-spacing: .02em;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .builder b { color: var(--ink); font-weight: 700; }
+  .open {
+    font-family: var(--body); font-weight: 600; font-size: 14px; color: #fff;
+    background: var(--brand); padding: 9px 16px; border-radius: 9px;
+    text-decoration: none; white-space: nowrap; transition: background .15s, transform .1s;
+  }
+  .open:hover { background: var(--brand-ink); }
+  .open:active { transform: scale(.97); }
+  .open:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .priv svg { display: block; }
+
+  /* ---------- Empty state ---------- */
+  .empty { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty strong { display: block; font-family: var(--display); font-size: 20px; color: var(--ink); margin-bottom: 6px; }
+
+  /* ---------- Add panel ---------- */
+  .add { border-top: 1px solid var(--hair); padding: 44px 0 80px; }
+  .add-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .add h3 { font-family: var(--display); font-weight: 600; font-size: 24px; letter-spacing: -.01em; margin: 0 0 14px; }
+  .add ol { margin: 0; padding-left: 20px; color: var(--muted); font-size: 15px; }
+  .add ol li { margin-bottom: 10px; }
+  .add code {
+    font-family: var(--mono); font-size: 13px; background: var(--brand-soft);
+    color: var(--brand-ink); padding: 2px 6px; border-radius: 5px;
+  }
+  .note { background: var(--note-bg); border: 1px solid var(--note-border); border-radius: 12px; padding: 20px 22px; }
+  .note h4 {
+    font-family: var(--display); font-size: 16px; margin: 0 0 8px; color: var(--note-ink);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .note p { margin: 0; font-size: 14px; color: #6E4A1C; }
+
+  footer { border-top: 1px solid var(--hair); padding: 28px 0 56px; }
+  .foot-name { font-family: var(--display); font-weight: 600; font-size: 15px; color: var(--ink); }
+  .foot-line { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: .04em; margin-top: 6px; }
+
+  /* ---------- Motion ---------- */
+  .card { opacity: 0; transform: translateY(12px); animation: rise .5s ease forwards; }
+  @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) {
+    .card { animation: none; opacity: 1; transform: none; transition: none; }
+    .card:hover { transform: none; }
+  }
+
+  @media (max-width: 720px) {
+    .add-grid { grid-template-columns: 1fr; }
+    header.masthead { padding: 28px 0 28px; }
+    .brandmark { margin-bottom: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="masthead">
+    <a class="brandmark" href="https://www.prs.uk.com" target="_blank" rel="noopener" aria-label="Pure Resourcing Solutions">
+      <img src="logo.png" alt="Pure Resourcing Solutions"
+           onerror="this.style.display='none';document.getElementById('wordmark').style.display='inline-flex';">
+      <span class="wordmark" id="wordmark">Pure<em>.</em></span>
+    </a>
+    <p class="eyebrow">Internal Tools</p>
+    <h1>Pure Toolshed</h1>
+    <p class="lede">Apps the team has built to take the friction out of the working day. Find one, open it, or build your own and add it to the wall.</p>
+  </header>
+
+  <div class="controls">
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" id="search" placeholder="Search by name or what it does" aria-label="Search tools">
+    </div>
+    <div class="filters" id="filters" role="group" aria-label="Filter by category"></div>
+  </div>
+
+  <p class="count" id="count"></p>
+
+  <main class="grid" id="grid"></main>
+
+  <section class="add">
+    <div class="add-grid">
+      <div>
+        <h3>Add your tool</h3>
+        <ol>
+          <li>Open <code>index.html</code> in the repo and click the pencil to edit it in the browser.</li>
+          <li>Copy one of the blocks in the <code>apps</code> list near the top of the file.</li>
+          <li>Fill in the name, a one-line description, the category, your name, the link to your app, and whether it is public or private.</li>
+          <li>Commit the change. The wall updates itself.</li>
+        </ol>
+      </div>
+      <div class="note">
+        <h4>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Before you add it
+        </h4>
+        <p>If a tool stores or sends candidate or client personal data, keep it in a private repo and get sign-off before listing it here. Tools that work entirely in the browser, with nothing leaving the page, are fine to share openly.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-name">Pure Resourcing Solutions</div>
+    <div class="foot-line">Cambridge &nbsp;·&nbsp; Chelmsford &nbsp;·&nbsp; Ipswich &nbsp;·&nbsp; Norwich &nbsp;&nbsp;|&nbsp;&nbsp; Built by the team, for the team</div>
+  </div>
+</footer>
+
+<script>
+  /* =====================================================================
+     EDIT THIS LIST TO ADD OR CHANGE TOOLS
+     Copy a block, fill in the fields, commit. That is the whole job.
+
+       name        what it is called
+       desc        one line on what it does for the person using it
+       category    a short bucket, e.g. Sourcing, Admin, Outreach
+       builder     who made it
+       url         where the app lives (a link)
+       access      "public"  -> open to everyone
+                   "private" -> shown with a lock, restricted repo
+     ===================================================================== */
+  const apps = [
+    {
+      name: "Boolean Builder",
+      desc: "Turn a job brief into a tidy LinkedIn boolean string without fighting the brackets.",
+      category: "Sourcing",
+      builder: "Craig",
+      url: "#",
+      access: "public"
+    },
+    {
+      name: "CV Anonymiser",
+      desc: "Strip names and contact details from a CV before it goes to a client. Runs entirely in your browser.",
+      category: "Compliance",
+      builder: "David Culley",
+      url: "#",
+      access: "private"
+    },
+    {
+      name: "Advert Formatter",
+      desc: "Paste rough notes, get back a clean job advert in our house style and tone.",
+      category: "Adverts",
+      builder: "Sheridan Halls",
+      url: "#",
+      access: "public"
+    },
+    {
+      name: "Salary Snapshot",
+      desc: "Quick market benchmark for a role and location to sanity-check an offer.",
+      category: "Admin",
+      builder: "Jon Taylor",
+      url: "#",
+      access: "public"
+    },
+    {
+      name: "Interview Scheduler",
+      desc: "Suggests sensible slots across a candidate and panel and drafts the invite.",
+      category: "Admin",
+      builder: "Giles Dawson",
+      url: "#",
+      access: "public"
+    }
+  ];
+
+  /* ---- Rendering (no need to touch below here) ---- */
+  const grid = document.getElementById("grid");
+  const filtersEl = document.getElementById("filters");
+  const countEl = document.getElementById("count");
+  const searchEl = document.getElementById("search");
+
+  let activeCat = "All";
+  let query = "";
+
+  const categories = ["All", ...Array.from(new Set(apps.map(a => a.category))).sort()];
+
+  const lock = '<span class="priv"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> Private</span>';
+
+  function buildFilters() {
+    filtersEl.innerHTML = "";
+    categories.forEach(cat => {
+      const b = document.createElement("button");
+      b.className = "chip";
+      b.textContent = cat;
+      b.setAttribute("aria-pressed", cat === activeCat);
+      b.addEventListener("click", () => { activeCat = cat; buildFilters(); render(); });
+      filtersEl.appendChild(b);
+    });
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+  }
+
+  function render() {
+    const q = query.trim().toLowerCase();
+    const list = apps.filter(a => {
+      const matchCat = activeCat === "All" || a.category === activeCat;
+      const matchQ = !q || (a.name + " " + a.desc + " " + a.builder + " " + a.category).toLowerCase().includes(q);
+      return matchCat && matchQ;
+    });
+
+    countEl.textContent = list.length + (list.length === 1 ? " tool" : " tools");
+    grid.innerHTML = "";
+
+    if (!list.length) {
+      grid.innerHTML = '<div class="empty"><strong>Nothing matches that yet.</strong>Try a different word, or add the tool yourself below.</div>';
+      return;
+    }
+
+    list.forEach((a, i) => {
+      const isPrivate = a.access === "private";
+      const card = document.createElement("article");
+      card.className = "card";
+      card.style.animationDelay = (i * 45) + "ms";
+      card.innerHTML =
+        '<div class="card-tag">' + escapeHtml(a.category) + (isPrivate ? lock : "") + '</div>' +
+        '<h2>' + escapeHtml(a.name) + '</h2>' +
+        '<p>' + escapeHtml(a.desc) + '</p>' +
+        '<div class="card-foot">' +
+          '<span class="builder">by <b>' + escapeHtml(a.builder) + '</b></span>' +
+          '<a class="open" href="' + escapeHtml(a.url) + '" target="_blank" rel="noopener">Open</a>' +
+        '</div>';
+      grid.appendChild(card);
+    });
+  }
+
+  searchEl.addEventListener("input", e => { query = e.target.value; render(); });
+
+  buildFilters();
+  render();
+</script>
+</body>
+</html>
