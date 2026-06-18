@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boolean Builder · Pure Toolshed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Brand colour: set --brand to Pure's exact hex to match the Toolshed. */
+  :root {
+    --brand: #0E8C84; --brand-ink: #0A6A64; --brand-soft: #E2F1EF;
+    --board: #E9EBEF; --board-dot: #D2D6DD; --card: #FFFFFF;
+    --ink: #16181D; --muted: #65696F; --hair: #DADEE4;
+    --must-bg: #E7F0FB; --must-bd: #Bcd6f5; --must-ink: #1C5DAE;
+    --nice-bg: #F1F0F5; --nice-bd: #DCDAE6; --nice-ink: #5A5470;
+    --warn-bg: #FFF4E8; --warn-bd: #F2D7B0; --warn-ink: #9A5B16;
+    --shadow: 0 1px 2px rgba(22,24,29,.06), 0 6px 16px rgba(22,24,29,.07);
+    --display: "Space Grotesk", system-ui, sans-serif;
+    --body: "Inter", system-ui, sans-serif; --mono: "Space Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: var(--body); color: var(--ink);
+    background-color: var(--board);
+    background-image: radial-gradient(var(--board-dot) 1.5px, transparent 1.5px);
+    background-size: 22px 22px; background-position: -11px -11px;
+    line-height: 1.55; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 28px; }
+  header.masthead { padding: 38px 0 24px; }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--brand); margin: 0 0 14px; }
+  h1 { font-family: var(--display); font-weight: 700; font-size: clamp(34px, 5vw, 56px); line-height: 1; letter-spacing: -.02em; margin: 0 0 14px; }
+  .lede { font-size: 16.5px; color: var(--muted); max-width: 64ch; margin: 0; }
+
+  .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding-bottom: 80px; align-items: start; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+  .panel { background: var(--card); border: 1px solid var(--hair); border-radius: 16px; box-shadow: var(--shadow); padding: 22px 24px 24px; }
+
+  .block { margin-bottom: 22px; }
+  .block:last-child { margin-bottom: 0; }
+  .blabel { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--brand); margin: 0 0 10px; display: block; }
+  textarea#jd { width: 100%; min-height: 180px; font-family: var(--body); font-size: 14px; line-height: 1.5; color: var(--ink); padding: 13px 14px; border: 1px solid var(--hair); border-radius: 11px; resize: vertical; }
+  textarea#jd:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+
+  .btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+  .btn { font-family: var(--body); font-size: 14px; font-weight: 600; cursor: pointer; border-radius: 9px; padding: 10px 17px; border: 1px solid var(--hair); transition: background .15s, border-color .15s, transform .1s; }
+  .btn.primary { background: var(--brand); color: #fff; border-color: var(--brand); }
+  .btn.primary:hover { background: var(--brand-ink); }
+  .btn.primary:active { transform: scale(.98); }
+  .btn.ghost { background: var(--card); color: var(--ink); }
+  .btn.ghost:hover { border-color: var(--ink); }
+  .btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+  .terms-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .sublab { font-size: 13px; font-weight: 600; color: var(--ink); margin: 0 0 8px; display: flex; align-items: center; gap: 7px; }
+  .sublab small { font-weight: 400; color: var(--muted); font-size: 12px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 8px; min-height: 8px; }
+  .chip { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--hair); background: #fff; cursor: default; }
+  .chip .x { cursor: pointer; color: var(--muted); font-weight: 700; line-height: 1; padding: 0 1px; }
+  .chip .x:hover { color: var(--ink); }
+  .chip.title { border-color: var(--brand-soft); background: var(--brand-soft); color: var(--brand-ink); }
+  .chip.must { border-color: var(--must-bd); background: var(--must-bg); color: var(--must-ink); }
+  .chip.nice { border-color: var(--nice-bd); background: var(--nice-bg); color: var(--nice-ink); }
+  .chip.sen { border-color: var(--hair); }
+  .chip .move { cursor: pointer; font-size: 11px; opacity: .7; text-decoration: underline; }
+  .chip .move:hover { opacity: 1; }
+  .addrow { display: flex; gap: 6px; margin-bottom: 4px; }
+  .addrow input { flex: 1; font-family: var(--body); font-size: 13px; padding: 7px 10px; border: 1px solid var(--hair); border-radius: 8px; }
+  .addrow input:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 2px var(--brand-soft); }
+  .addrow button { font-size: 13px; font-weight: 600; padding: 0 13px; border: 1px solid var(--hair); border-radius: 8px; background: #fff; cursor: pointer; }
+  .addrow button:hover { border-color: var(--ink); }
+
+  .opt { display: flex; align-items: center; gap: 9px; font-size: 13.5px; margin-bottom: 9px; }
+  .opt input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--brand); }
+  .opt input[type=text] { font-family: var(--body); font-size: 13px; padding: 7px 10px; border: 1px solid var(--hair); border-radius: 8px; flex: 1; }
+  .opt input[type=text]:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 2px var(--brand-soft); }
+
+  .out { position: sticky; top: 18px; }
+  .ocard { background: var(--card); border: 1px solid var(--hair); border-radius: 14px; box-shadow: var(--shadow); padding: 18px 20px; margin-bottom: 16px; }
+  .ohead { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+  .otitle { font-family: var(--display); font-size: 17px; font-weight: 600; margin: 0; }
+  .odesc { font-size: 12.5px; color: var(--muted); margin: 0 0 12px; }
+  pre.bool { margin: 0 0 12px; font-family: var(--mono); font-size: 13px; line-height: 1.7; color: #24262C; background: #FBFBFC; border: 1px solid var(--hair); border-radius: 10px; padding: 14px; white-space: pre-wrap; word-break: break-word; }
+  .copy { font-family: var(--body); font-weight: 600; font-size: 13.5px; color: #fff; background: var(--brand); border: none; padding: 9px 15px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: background .15s, transform .1s; }
+  .copy:hover { background: var(--brand-ink); } .copy:active { transform: scale(.97); }
+  .copy:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .meter { font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin-top: 10px; letter-spacing: .03em; }
+  .warn { margin-top: 10px; background: var(--warn-bg); border: 1px solid var(--warn-bd); border-radius: 9px; padding: 9px 12px; font-size: 12.5px; color: var(--warn-ink); }
+  .placeholder { color: var(--muted); font-size: 14px; text-align: center; padding: 30px 10px; }
+
+  footer { border-top: 1px solid var(--hair); padding: 24px 0 48px; }
+  .foot-line { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: .04em; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow">Pure Toolshed · Sourcing</p>
+    <h1>Boolean Builder</h1>
+    <p class="lede">Drop in a job description. The tool pulls out the titles, skills and seniority, you tidy them up, and it builds two LinkedIn search strings: a broad one that finds people, and a precise one for when you need to narrow down.</p>
+  </header>
+
+  <div class="layout">
+    <!-- INPUT -->
+    <div class="panel">
+      <div class="block">
+        <span class="blabel">1 · The job description</span>
+        <textarea id="jd" placeholder="Paste the full job description or brief here, then click Build."></textarea>
+        <div class="btns">
+          <button class="btn primary" id="build">Build from this</button>
+          <button class="btn ghost" id="example">Load an example</button>
+          <button class="btn ghost" id="clear">Clear</button>
+        </div>
+      </div>
+
+      <div class="block" id="termsBlock" style="display:none;">
+        <span class="blabel">2 · Check the terms</span>
+
+        <p class="sublab">Job titles <small>matched on the title in LinkedIn</small></p>
+        <div class="chips" id="titleChips"></div>
+        <div class="addrow"><input type="text" id="addTitle" placeholder="Add a title"><button data-add="title">Add</button></div>
+
+        <p class="sublab" style="margin-top:16px;">Must have <small>each one is required (AND)</small></p>
+        <div class="chips" id="mustChips"></div>
+        <div class="addrow"><input type="text" id="addMust" placeholder="Add a must-have skill"><button data-add="must">Add</button></div>
+
+        <p class="sublab" style="margin-top:16px;">Nice to have <small>widens the broad search</small></p>
+        <div class="chips" id="niceChips"></div>
+        <div class="addrow"><input type="text" id="addNice" placeholder="Add a nice-to-have skill"><button data-add="nice">Add</button></div>
+
+        <p class="sublab" style="margin-top:16px;">Seniority <small>optional</small></p>
+        <div class="chips" id="senChips"></div>
+        <div class="addrow"><input type="text" id="addSen" placeholder="Add a level, e.g. Senior"><button data-add="sen">Add</button></div>
+      </div>
+
+      <div class="block" id="optBlock" style="display:none;">
+        <span class="blabel">3 · Options</span>
+        <label class="opt"><input type="checkbox" id="optSyn" checked> Include common synonyms (Developer, SWE and so on)</label>
+        <label class="opt"><input type="checkbox" id="optExcl" checked> Exclude recruiters, students and interns</label>
+        <label class="opt"><input type="text" id="optLoc" placeholder="Optional location, e.g. Cambridge (LinkedIn's own filter is usually better)"></label>
+      </div>
+    </div>
+
+    <!-- OUTPUT -->
+    <div>
+      <div class="out" id="out">
+        <div class="placeholder ocard" id="ph">Paste a job description on the left and click <strong>Build from this</strong>. Your two search strings will appear here.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer><div class="wrap"><span class="foot-line">Pure Toolshed · built by the team, for the team</span></div></footer>
+
+<script>
+const $ = id => document.getElementById(id);
+
+/* ---------- Dictionaries ---------- */
+const TITLE_SYN = {
+  "Software Engineer":["Software Engineer","Software Developer","Developer","Programmer"],
+  "Frontend Engineer":["Frontend Engineer","Front End Engineer","Frontend Developer","Front End Developer","UI Engineer"],
+  "Backend Engineer":["Backend Engineer","Back End Engineer","Backend Developer","Back End Developer"],
+  "Full Stack Engineer":["Full Stack Engineer","Full Stack Developer","Fullstack Developer"],
+  "Mobile Engineer":["Mobile Engineer","iOS Engineer","Android Engineer","Mobile Developer"],
+  "Data Scientist":["Data Scientist"],
+  "Data Engineer":["Data Engineer","Analytics Engineer"],
+  "Data Analyst":["Data Analyst","BI Analyst"],
+  "Machine Learning Engineer":["Machine Learning Engineer","ML Engineer","MLOps Engineer"],
+  "DevOps Engineer":["DevOps Engineer","Site Reliability Engineer","SRE","Platform Engineer"],
+  "QA Engineer":["QA Engineer","Test Engineer","SDET","Quality Assurance Engineer"],
+  "Product Manager":["Product Manager","Product Owner"],
+  "Product Designer":["Product Designer","UX Designer","UI Designer","UX/UI Designer"],
+  "UX Researcher":["UX Researcher","User Researcher"],
+  "Engineering Manager":["Engineering Manager","Development Manager","Head of Engineering"],
+  "Solutions Architect":["Solutions Architect","Software Architect","Technical Architect"],
+  "Electronics Engineer":["Electronics Engineer","Electronic Engineer","Hardware Engineer"],
+  "RF Engineer":["RF Engineer","Radio Frequency Engineer","RF Design Engineer"]
+};
+const SKILL_SYN = {
+  "Python":["Python"],"Java":["Java"],"JavaScript":["JavaScript","JS"],"TypeScript":["TypeScript"],
+  "C++":["C++"],"C#":["C#"],".NET":[".NET","ASP.NET"],"Go":["Golang","Go"],"Rust":["Rust"],
+  "Ruby":["Ruby","Ruby on Rails","Rails"],"PHP":["PHP"],"Scala":["Scala"],"Kotlin":["Kotlin"],"Swift":["Swift"],
+  "React":["React","React.js","ReactJS"],"Angular":["Angular"],"Vue":["Vue","Vue.js","VueJS"],
+  "Node.js":["Node.js","Node","NodeJS"],"Django":["Django"],"Flask":["Flask"],"Spring":["Spring","Spring Boot"],
+  "SQL":["SQL"],"PostgreSQL":["PostgreSQL","Postgres"],"MySQL":["MySQL"],"MongoDB":["MongoDB","Mongo"],
+  "AWS":["AWS","Amazon Web Services"],"Azure":["Azure"],"GCP":["GCP","Google Cloud"],
+  "Docker":["Docker"],"Kubernetes":["Kubernetes","K8s"],"Terraform":["Terraform"],
+  "Spark":["Spark","Apache Spark"],"Kafka":["Kafka"],"Airflow":["Airflow"],"Snowflake":["Snowflake"],
+  "dbt":["dbt"],"Tableau":["Tableau"],"Power BI":["Power BI"],"pandas":["pandas"],
+  "TensorFlow":["TensorFlow"],"PyTorch":["PyTorch"],
+  "Figma":["Figma"],"Sketch":["Sketch"],"Adobe XD":["Adobe XD"],
+  "Agile":["Agile"],"Scrum":["Scrum"],"Jira":["Jira"],
+  "MATLAB":["MATLAB"],"SCPI":["SCPI"],"PyVISA":["PyVISA"],"VNA":["VNA"]
+};
+const SENIORITY = ["Graduate","Junior","Mid","Senior","Lead","Principal","Staff","Head of","Director"];
+
+/* ---------- State ---------- */
+let S = { titles:[], must:[], nice:[], sen:[] };
+
+/* ---------- Matching helpers ---------- */
+function makeRe(term){
+  const esc = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  // boundaries that tolerate symbols like + # .
+  return new RegExp("(^|[^A-Za-z0-9+#.])" + esc + "([^A-Za-z0-9+#.]|$)", term === "Go" ? "" : "i");
+}
+function found(term, text){ return makeRe(term).test(text); }
+
+function detect(text){
+  const titles = [], must = [], nice = [], sen = [];
+  // titles
+  for (const [canon, syns] of Object.entries(TITLE_SYN)) {
+    if (syns.some(s => found(s, text))) titles.push(canon);
+  }
+  // section-aware skill bucketing
+  const lines = text.split(/\n+/);
+  let bucket = "nice";
+  const skillBucket = {};
+  for (const raw of lines) {
+    const l = raw.toLowerCase();
+    if (/(essential|required|requirements|must have|must-have|you will need|key skills)/.test(l)) bucket = "must";
+    else if (/(desirable|nice to have|nice-to-have|bonus|preferred|advantageous|a plus|beneficial)/.test(l)) bucket = "nice";
+    for (const [canon, syns] of Object.entries(SKILL_SYN)) {
+      if (syns.some(s => found(s, raw))) {
+        if (skillBucket[canon] !== "must") skillBucket[canon] = bucket;
+      }
+    }
+  }
+  for (const [canon, b] of Object.entries(skillBucket)) { (b === "must" ? must : nice).push(canon); }
+  for (const s of SENIORITY) { if (found(s, text)) sen.push(s); }
+  return { titles, must, nice, sen };
+}
+
+/* ---------- Boolean build ---------- */
+function quote(t){ return /[\s/]/.test(t) ? '"'+t+'"' : t; }
+function expand(label, dict){ return ($("optSyn").checked && dict[label]) ? dict[label] : [label]; }
+function orGroup(terms){
+  const flat = [...new Set(terms)];
+  return "(" + flat.map(quote).join(" OR ") + ")";
+}
+function titleGroup(){
+  if (!S.titles.length) return "";
+  let all = []; S.titles.forEach(t => all = all.concat(expand(t, TITLE_SYN)));
+  return orGroup(all);
+}
+function exclusion(){
+  return $("optExcl").checked ? 'NOT (recruiter OR "talent acquisition" OR student OR intern)' : "";
+}
+function locClause(){
+  const v = $("optLoc").value.trim();
+  return v ? "(" + v.split(/\s+OR\s+|,\s*/).map(x=>quote(x.trim())).filter(Boolean).join(" OR ") + ")" : "";
+}
+
+function buildBroad(){
+  const parts = [];
+  const tg = titleGroup(); if (tg) parts.push(tg);
+  let skills = S.must.length ? S.must.concat(S.nice) : S.nice;
+  if (skills.length){
+    let all = []; skills.forEach(s => all = all.concat(expand(s, SKILL_SYN)));
+    parts.push(orGroup(all));
+  }
+  const loc = locClause(); if (loc) parts.push(loc);
+  let str = parts.join(" AND ");
+  const ex = exclusion(); if (ex && str) str += " " + ex;
+  return str;
+}
+function buildPrecise(){
+  const parts = [];
+  const tg = titleGroup(); if (tg) parts.push(tg);
+  if (S.sen.length) parts.push(orGroup(S.sen));
+  S.must.forEach(s => parts.push(orGroup(expand(s, SKILL_SYN))));
+  if (!S.must.length && S.nice.length){
+    // no must-haves picked: fall back to nice-to-haves OR'd so it still works
+    let all = []; S.nice.forEach(s => all = all.concat(expand(s, SKILL_SYN)));
+    parts.push(orGroup(all));
+  }
+  const loc = locClause(); if (loc) parts.push(loc);
+  let str = parts.join(" AND ");
+  const ex = exclusion(); if (ex && str) str += " " + ex;
+  return str;
+}
+function andCount(str){ return str ? (str.match(/ AND /g)||[]).length + 1 : 0; }
+
+/* ---------- Render ---------- */
+function chip(label, cls, opts){
+  const moveTxt = opts && opts.move ? `<span class="move" data-move="${opts.kind}" data-label="${label}">${opts.move}</span>` : "";
+  return `<span class="chip ${cls}">${moveTxt}<span>${label}</span><span class="x" data-del="${opts.kind}" data-label="${label}">×</span></span>`;
+}
+function renderChips(){
+  $("titleChips").innerHTML = S.titles.map(t=>chip(t,"title",{kind:"titles"})).join("") || '<span style="font-size:12.5px;color:var(--muted)">none yet</span>';
+  $("mustChips").innerHTML  = S.must.map(t=>chip(t,"must",{kind:"must",move:"→ nice"})).join("") || '<span style="font-size:12.5px;color:var(--muted)">none yet</span>';
+  $("niceChips").innerHTML  = S.nice.map(t=>chip(t,"nice",{kind:"nice",move:"→ must"})).join("") || '<span style="font-size:12.5px;color:var(--muted)">none yet</span>';
+  $("senChips").innerHTML   = S.sen.map(t=>chip(t,"sen",{kind:"sen"})).join("") || '<span style="font-size:12.5px;color:var(--muted)">none yet</span>';
+}
+function renderOut(){
+  const broad = buildBroad(), precise = buildPrecise();
+  if (!broad && !precise){ $("out").innerHTML = $("ph").outerHTML; return; }
+  const pc = andCount(precise);
+  const warn = pc >= 5 ? `<div class="warn">That's ${pc} required clauses, which is narrow. If results are thin, move a must-have over to nice-to-have.</div>` : "";
+  $("out").innerHTML = `
+    <div class="ocard">
+      <div class="ohead"><h3 class="otitle">Broad</h3><button class="copy" data-copy="b"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div>
+      <p class="odesc">Casts wide: the title plus any one of the skills. Use this first to see who is out there.</p>
+      <pre class="bool" id="boolB">${broad || "—"}</pre>
+      <div class="meter">${andCount(broad)} clauses · wider net</div>
+    </div>
+    <div class="ocard">
+      <div class="ohead"><h3 class="otitle">Precise</h3><button class="copy" data-copy="p"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button></div>
+      <p class="odesc">Tighter: the title plus every must-have. Use when the broad search returns too many.</p>
+      <pre class="bool" id="boolP">${precise || "—"}</pre>
+      <div class="meter">${pc} clauses · sharper</div>
+      ${warn}
+    </div>`;
+}
+function render(){ renderChips(); renderOut(); }
+
+/* ---------- Events ---------- */
+$("build").addEventListener("click", () => {
+  const text = $("jd").value;
+  if (!text.trim()){ return; }
+  const d = detect(text);
+  S = d;
+  $("termsBlock").style.display = "block";
+  $("optBlock").style.display = "block";
+  render();
+});
+
+document.querySelectorAll("[data-add]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const kind = btn.getAttribute("data-add");
+    const map = { title:"addTitle", must:"addMust", nice:"addNice", sen:"addSen" };
+    const arr = { title:"titles", must:"must", nice:"nice", sen:"sen" }[kind];
+    const inp = $(map[kind]); const val = inp.value.trim();
+    if (val && !S[arr].includes(val)){ S[arr].push(val); inp.value = ""; render(); }
+    inp.focus();
+  });
+});
+["addTitle","addMust","addNice","addSen"].forEach(id => {
+  $(id).addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); const k = {addTitle:"title",addMust:"must",addNice:"nice",addSen:"sen"}[id]; document.querySelector(`[data-add="${k}"]`).click(); } });
+});
+
+document.addEventListener("click", e => {
+  const del = e.target.closest("[data-del]");
+  if (del){ const k = del.getAttribute("data-del"); const l = del.getAttribute("data-label"); S[k] = S[k].filter(x => x !== l); render(); return; }
+  const mv = e.target.closest("[data-move]");
+  if (mv){ const from = mv.getAttribute("data-move"); const l = mv.getAttribute("data-label"); const to = from === "must" ? "nice" : "must"; S[from] = S[from].filter(x => x !== l); if (!S[to].includes(l)) S[to].push(l); render(); return; }
+  const cp = e.target.closest("[data-copy]");
+  if (cp){
+    const text = cp.getAttribute("data-copy") === "b" ? buildBroad() : buildPrecise();
+    const span = cp.querySelector("span");
+    navigator.clipboard.writeText(text).catch(()=>{ const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");}catch(_){} document.body.removeChild(ta); });
+    const old = span.textContent; span.textContent = "Copied"; setTimeout(()=>span.textContent = old, 1500);
+  }
+});
+
+["optSyn","optExcl","optLoc"].forEach(id => $(id).addEventListener("input", renderOut));
+
+$("clear").addEventListener("click", () => {
+  $("jd").value = ""; S = { titles:[], must:[], nice:[], sen:[] };
+  $("termsBlock").style.display = "none"; $("optBlock").style.display = "none";
+  $("out").innerHTML = $("ph").outerHTML;
+});
+
+$("example").addEventListener("click", () => {
+  $("jd").value =
+`Senior Software Engineer
+
+We are looking for a Senior Software Engineer to join our platform team in Cambridge.
+
+Essential:
+- Strong commercial experience with Python
+- Building and deploying services on AWS
+- Solid SQL and relational database knowledge
+
+Desirable:
+- Experience with React and TypeScript
+- Exposure to Docker and Kubernetes
+- Familiarity with Agile and Scrum`;
+  $("build").click();
+});
+
+render();
+</script>
+</body>
+</html>
